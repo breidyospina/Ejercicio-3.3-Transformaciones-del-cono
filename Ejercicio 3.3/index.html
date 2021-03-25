@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+ <head>
+   <title>Ejercicio 1 Transformación-Breidy Ospina</title>
+   <style>
+     html, body { margin: 0; padding: 0; overflow: hidden; }
+   </style>
+ </head>
+ <body>
+   <script src="js/three.min.js"></script>
+   <script>
+   var scene, aspect, camera, renderer;
+   var startTime = Date.now();
+   //DEFINICIÓN DE LAS VARIABLES
+	 var radio=1;//radio
+	 var alto=1;//altura
+	 var ncaras=10;//num de caras
+	 var Ty=0.5;
+
+
+   init();
+   animate();
+
+   function init()
+   {
+		scene = new THREE.Scene();
+		aspect = window.innerWidth / window.innerHeight;
+		camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+		renderer = new THREE.WebGLRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.body.appendChild( renderer.domElement );
+
+		var size = 10;
+		var arrowSize = 3;
+		var divisions = size;
+		var origin = new THREE.Vector3( 0, 0, 0 );
+		var x = new THREE.Vector3( 1, 0, 0 );
+		var y = new THREE.Vector3( 0, 1, 0 );
+		var z = new THREE.Vector3( 0, 0, 1 );
+		var color1 = new THREE.Color( 0xFFFFFF );
+		var color2 = new THREE.Color( 0x333333 );
+		var colorR = new THREE.Color( 0xAA3333 );
+		var colorG = new THREE.Color( 0x33AA33 );
+		var colorB = new THREE.Color( 0x333366 );
+
+		 //CREAR LAS GRILLAS PARA EL ESCENARIO
+		 var axesHelper = new THREE.AxesHelper( size );
+		 var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		 var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		 var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		 gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+		 gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+		 gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+
+		 //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+		 var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+		 var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+		 var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+
+		 //CREACIÓN DE GEOMETRIA
+		 var geometry = new THREE.ConeGeometry( radio, alto, ncaras);
+		 //CREACIÓN DE MATERIALES
+		 var material = new THREE.MeshBasicMaterial( { color: 0x00F8FF } );
+		 
+
+		 //CREACION DE LOS 3 CUBOS 
+		 cono  = new THREE.Mesh( geometry, material );
+		
+        //1.Trasladar el cono sobre la grilla
+        cono.applyMatrix4(matrizT(0,0.5,0));
+        //2.Rotar 90 grados hacia el eje x
+        cono.applyMatrix4(matrizRx(Math.PI/2));
+        //3. Rotar 18 grados en el eje Z para que coincidan los vertice en el eje x
+        cono.applyMatrix4(matrizRz(Math.PI/10));
+        //4. Rotar el cono 90 grados sobre el eje y
+        cono.applyMatrix4(matrizRy(Math.PI/2)); 
+        //5. Rotar para que todo el cono quede inclinado
+        cono.applyMatrix4(matrizRz(-Math.PI/10));//18°
+        //6.Trasladar para que el cono quede sobre el eje x
+        cono.applyMatrix4(matrizT(0.2,0.5,0));
+
+        
+        //cono.elementsNeedUpdate=true;
+        /*//7.Escalar el cono para que su altura sea 3
+        cono.applyMatrix4(matrizE(0,3,0));
+		//cubo2.elementsNeedUpdate=true;*/
+
+
+
+        //AÑADIR A LA ESCENA
+		 scene.add( cono );
+		 
+
+		 scene.add( gridHelperXZ );
+		 scene.add( arrowX );
+		 scene.add( arrowY );
+		 scene.add( arrowZ );
+
+		 //POSICION DE LA CAMARA
+		 camera.position.x = 3;
+		 camera.position.y = 5;
+		 camera.position.z =  5;
+		 
+
+		 camera.lookAt( origin );
+	 }
+
+	 function animate()
+	 {
+		 render();
+		 requestAnimationFrame( animate );
+	 }
+
+	 function render()
+	 {
+		 var dtime = Date.now()-startTime;
+		 camera.position.x = 10*Math.cos(dtime/10000);
+		 camera.position.z = 10*Math.sin(dtime/10000);
+		 camera.lookAt( 0, 0, 0 );
+		 renderer.render( scene, camera );
+	 }
+     function matrizT(x,y,z){
+        var t = new THREE.Matrix4();
+		//MATRIZ PARA TRASLADAR
+		 t.set
+			 ( 	1, 0, 0, x,
+ 				0, 1, 0, y,
+ 				0, 0, 1, z,
+ 				0, 0, 0, 1	);
+
+			return t;
+     }
+     function matrizRx(angle){
+        var tr = new THREE.Matrix4();
+		//MATRIZ PARA TRASLADAR
+		 tr.set
+			 ( 	1, 0, 0, 0,
+ 				0, Math.cos(angle), -Math.sin(angle), 0,
+ 				0, Math.sin(angle),  Math.cos(angle), 0,
+ 				0, 0, 0, 1	);
+
+			return tr;
+     }
+     function matrizRy(angle){
+        var t2 = new THREE.Matrix4();
+		//MATRIZ PARA TRASLADAR
+		 t2.set
+			 ( Math.cos(angle), 0, Math.sin(angle), 0,
+ 				0,1 , 0, 0,
+ 				-Math.sin(angle), 0,  Math.cos(angle), 0,
+ 				0, 0, 0, 1	);
+
+			return t2;
+     }
+     function matrizRz(angle){
+        var trz = new THREE.Matrix4();
+		//MATRIZ PARA TRASLADAR
+		 trz.set
+			 ( 	Math.cos(angle),-Math.sin(angle), 0, 0,
+                Math.sin(angle),Math.cos(angle) ,0, 0,
+ 				0, 0,  1, 0,
+ 				0, 0, 0, 1	);
+
+			return trz;
+     }
+     function matrizE(sx,sy,sz){
+        var te = new THREE.Matrix4();
+		//MATRIZ PARA TRASLADAR
+		 te.set
+			 ( 	1, 0, 0,  0,
+ 				0, sy, 0,  0,
+ 				0, 0,  1, 0,
+ 				0, 0,  0,   1	);
+
+			return te;
+     }
+   </script>
+ </body>
+</html>
