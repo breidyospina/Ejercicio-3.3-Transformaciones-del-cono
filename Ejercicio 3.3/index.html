@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html>
  <head>
-   <title>Ejercicio 1 Transformación-Breidy Ospina</title>
+   <title>Ejercicio 3.3 Transformación de un cono-Breidy Ospina</title>
    <style>
      html, body { margin: 0; padding: 0; overflow: hidden; }
    </style>
  </head>
  <body>
+	<div>
+		TRANSFORMACIÓN DE UN CONO<br/>
+		Instrucciones:<br/>
+		1.Usar flecha arriba para ver solo el cono inicial. <br/>
+		2.Usar flecha abajo para ver el cono luego de aplicarle las transformaciones.<br/>
+	</div>
    <script src="js/three.min.js"></script>
    <script>
    var scene, aspect, camera, renderer;
@@ -15,6 +21,8 @@
 	 var radio=1;//radio
 	 var alto=1;//altura
 	 var ncaras=10;//num de caras
+	 var upArrow = false;
+	 var downArrow = false;
 	 
 
    init();
@@ -66,34 +74,49 @@
 		 cono  = new THREE.Mesh( geometry, material2 );
 		 cono2  = new THREE.Mesh( geometry, material );
 
-        //1.Trasladar los conos sobre la grilla
+		//1.Trasladar los conos sobre la grilla
 		cono.applyMatrix4(matrizT(0,0.5,0));
-        cono2.applyMatrix4(matrizT(0,0.5,0));
-        //2.Rotar 90 grados hacia el eje x
+		cono2.applyMatrix4(matrizT(0,0.5,0));
+		//2.Rotar 90 grados hacia el eje x
 		cono.applyMatrix4(matrizRx(Math.PI/2));
-        cono2.applyMatrix4(matrizRx(Math.PI/2));
-        //3. Rotar 18 grados en el eje Z para que coincidan los vertice en el eje x
-        cono.applyMatrix4(matrizRz(Math.PI/10));
+		cono2.applyMatrix4(matrizRx(Math.PI/2));
+		//3. Rotar 18 grados en el eje Z para que coincidan los vertice en el eje x
+		cono.applyMatrix4(matrizRz(Math.PI/10));
 		cono2.applyMatrix4(matrizRz(Math.PI/10));
-        
-		//7.Escalar el cono para que su altura sea 3
-        cono2.applyMatrix4(matrizE(3));
+		//4.Escalar el cono para que su altura sea 3
+		cono2.applyMatrix4(matrizE(3));
 		
-		//4. Rotar el cono 90 grados sobre el eje y
-        cono2.applyMatrix4(matrizRy(Math.PI/2)); 
-        //5.Trasladar para que el cono quede sobre el eje x
-        cono2.applyMatrix4(matrizT(0,1,0));
-        //6. Rotar para que todo el cono quede inclinado
-        cono2.applyMatrix4(matrizRz(-Math.PI/10));
-        
+		//5. Rotar el cono 90 grados sobre el eje y
+		cono2.applyMatrix4(matrizRy(Math.PI/2)); 
+		//6.Trasladar para que el cono quede sobre el eje x
+		cono2.applyMatrix4(matrizT(0,1,0));
+		//7. Rotar para que todo el cono quede inclinado
+		cono2.applyMatrix4(matrizRz(-Math.PI/10));
+		
+		//EVENTOS DE TECLADO
+		//Códigos de teclado: http://keycode.info 
+		var onKeyDown = function ( event ) {
+			switch ( event.keyCode ) {
+				case 38: // MOSTRAR EL CONO INICIAL
+					upArrow = true;
+					break;
+				case 40: //MOSTRAR EL CONO TRANSFORMADO
+					downArrow = true;
+					break;
+			}
+		}
 
+		var onKeyUp = function ( event ) {
+			upArrow = false;
+			downArrow = false;
+		}
 
+		document.addEventListener( 'keydown', onKeyDown, false );
+		document.addEventListener( 'keyup', onKeyUp, false );
 
-        //AÑADIR A LA ESCENA
-		 scene.add( cono );
+		 //AÑADIR A LA ESCENA
 		 scene.add( cono2 );
 		 
-
 		 scene.add( gridHelperXZ );
 		 scene.add( arrowX );
 		 scene.add( arrowY );
@@ -102,7 +125,7 @@
 		 //POSICION DE LA CAMARA
 		 camera.position.x = 3;
 		 camera.position.y = 5;
-		 camera.position.z =  5;
+		 camera.position.z = 5;
 		 
 
 		 camera.lookAt( origin );
@@ -121,6 +144,14 @@
 		 camera.position.z = 10*Math.sin(dtime/10000);
 		 camera.lookAt( 0, 0, 0 );
 		 renderer.render( scene, camera );
+		 if(upArrow) {
+			scene.add( cono );
+			scene.remove( cono2 );
+		 }
+		 if(downArrow) {
+			scene.remove( cono );
+			scene.add( cono2 );
+		 }
 	 }
      function matrizT(x,y,z){
         var t = new THREE.Matrix4();
